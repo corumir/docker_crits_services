@@ -23,7 +23,7 @@ This sequence is a first time install of CRITS and CRITS services, in order for 
 5. Create a mongo client
 > `docker run -it mongo mongo --host $host`
 >
-> Where $host is the external NIC IP address
+> Where $host is the external NIC IP address of the machine hosting the docker container
 
 5. Copy and paste the below code into the terminal after changing the tokens - please be aware that the below gives excessive permissions
 > `use crits`
@@ -37,21 +37,20 @@ This sequence is a first time install of CRITS and CRITS services, in order for 
 
 6. Ensure the above returns a success code. Exit the container by running `exit` or until you see the normal command prompt
 
-6. Rerun the mongodb container  
-> `docker stop docker_mongo && docker rm docker_mongo && docker run --name docker_mongo -p 27017:27017 -v /data/crits:/data/db -d mongo:latest --auth`
-
-7. (Optional) Create a specific crits user and role to access MongoDB
+7. (Optional) Create an admin user and role to manage MongoDB
 > Refer to vendor documentation
 
-8. Navigate to the crits directory and perform the following command
-> `docker build -t aux/crits:1 .`
->
-> Where the mongodb_password and mongodb_user are valid to access the mongodb database setup in earlier steps
+6. Rerun the mongodb container, this will enable authentication  
+> `docker stop docker_mongo && docker rm docker_mongo && docker run --name docker_mongo -p 27017:27017 -v /data/crits:/data/db -d mongo:latest --auth`
 
-9. First time build of the container
-> `docker run --name crits --link docker_mongo:mongo -p 8443:8443 -e FIRST_BOOT=true -e MONGO_USER=$mongo_user -e MONGO_PASSWORD=$mongo_password -d aux/crits:1`
+
+8. Perform the following command to pull the crits_services container
+> `docker pull auxsec/crits_services`
+
+9. First time run of the container
+> `docker run --name crits --link docker_mongo:mongo -p 8443:8443 -e FIRST_BOOT=true -e MONGO_USER=$mongo_user -e MONGO_PASSWORD=$mongo_password -d auxsec/crits_services`
 >
-> This will build the relevant database and configuration
+> This will build the relevant database collections and configuration
 
 10. Grab the username and password
 > `docker logs crits`
@@ -66,7 +65,7 @@ To stop the container
 
 To start the container
 
-`docker run --name crits --link docker_mongo:mongo -p 8443:8443 -e MONGO_USER=$mongo_user -e MONGO_PASSWORD=$mongo_password -d aux/crits:1`
+`docker run --name crits --link docker_mongo:mongo -p 8443:8443 -e MONGO_USER=$mongo_user -e MONGO_PASSWORD=$mongo_password -d auxsec/crits_services`
 
 Notice the lack of the first boot parameter!
 
@@ -104,10 +103,10 @@ Notice the lack of the first boot parameter!
 | ssdeep_service | yes  | yes |
 | totalhash_service | yes  | yes |
 | unswf_service | yes  | yes |
-| whois_service |yes | yes |
+| whois_service | yes | yes |
 
 ## Further Upgrades
 
 | Upgrade | Description | Status |
 | :---- | :----- | :----- |
-| Map SSL paramters | Allow custom ssl cert to be mapped into the crits container | Not implemented |
+| Map SSL parameters | Allow custom ssl cert to be mapped into the crits container | Not implemented |
