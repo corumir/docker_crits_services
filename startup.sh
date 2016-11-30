@@ -7,8 +7,9 @@ if [ "$FIRST_BOOT" == "true" ]
   then
     python /data/crits/manage.py create_default_collections
     python /data/crits/manage.py users -a -A -e "nonroot@crits.local" -f "Nonroot" -l "User" -o "REMnux" -u "nonroot"
-    python /data/crits_services_configuration.py
+    /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf & > /data/log/startup.log
     sleep 5
+    python /data/crits_services_configuration.py
     printf "\n"
     echo "To access CRITS user interface, go https://localhost:8443 and use the following credentials:"
     printf "\n"
@@ -22,6 +23,8 @@ if [ "$FIRST_BOOT" == "true" ]
 
   else
     #DONT RESET USER INFORMATION OR DESTROY EXISTING CONFIG IF THIS DOES NOT ALREADY EXIST
+    /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf & > /data/log/startup.log
+    sleep 5
     echo "To access CRITS user interface, go https://localhost:8443"
     printf "\n"
   fi
