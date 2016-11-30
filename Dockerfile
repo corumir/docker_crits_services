@@ -229,4 +229,4 @@ COPY crits_services_configuration.py /data/crits_services_configuration.py
 # Expose ports 8443 from the container to the host
 EXPOSE 8443
 
-ENTRYPOINT /bin/bash /data/startup.sh 
+ENTRYPOINT /bin/bash /data/startup.sh && /bin/bash
