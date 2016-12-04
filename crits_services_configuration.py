@@ -24,7 +24,7 @@ crits_config_collection.update({},{'$addToSet':{'service_dirs':'/data/crits_serv
 
 #Restart the apache2 service
 time.sleep(10)
-subprocess.call("/usr/bin/supervisord --user=root -c /etc/supervisor/conf.d/supervisord.conf & > /data/log/startup.log", shell=True)
+subprocess.call("service apache2 stop", shell=True)
 time.sleep(10)
 
 #exiftool_service

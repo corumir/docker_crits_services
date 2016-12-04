@@ -214,19 +214,22 @@ RUN git clone https://github.com/MITRECND/pynids.git && \
   git clone https://github.com/MITRECND/chopshop.git &&  cd chopshop && \
   make install
 
+COPY startup.sh /data/startup.sh
+
 # STIX TAXII client fix
 RUN sed -i "s/from stix\.utils import set_id_namespace/from mixbox\.idgen import set_id_namespace/" /data/crits_services/taxii_service/handlers.py && \
   cd /data && \
-  git clone https://github.com/Yara-Rules/rules.git
+  git clone https://github.com/Yara-Rules/rules.git && \
+  chmod +x /data/startup.sh
 
 USER root
 ENV HOME /home/root
 ENV USER root
 WORKDIR /data/crits
-COPY startup.sh /data/startup.sh
+
 COPY crits_services_configuration.py /data/crits_services_configuration.py
 
 # Expose ports 8443 from the container to the host
 EXPOSE 8443
 
-ENTRYPOINT /bin/bash /data/startup.sh && /bin/bash
+ENTRYPOINT cd /data && ./startup.sh && tail -f /data/log/startup.log
