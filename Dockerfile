@@ -59,7 +59,7 @@ RUN apt-get -qq update && \
   autoconf \
   libtool \
   python-nids \
-  libapache2-mod-wsgi && \
+  libapache2-mod-wsgi &&  \
   cp /etc/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf && \
   ldconfig
 
@@ -71,16 +71,11 @@ RUN cd /tmp && \
   wget -O ssdeep-2.13.tar.gz https://github.com/REMnux/docker/raw/master/dependencies/ssdeep-2.13.tar.gz && \
   sha256sum ssdeep-2.13.tar.gz > sha256sum.out && \
   sha256sum -c sha256sum.out && \
-
   tar vxzf ssdeep-2.13.tar.gz && \
   cd ssdeep-2.13/ && \
   ./configure && \
   make && \
   make install
-
-# Create nonroot account
-RUN groupadd -r nonroot && \
-  useradd -r -g nonroot -d /home/nonroot -m -s /sbin/nologin -c "Nonroot User" nonroot
 
 # Setup CRITs
 RUN bash -c 'mkdir -pv /data/{db,lock/apache2,log/apache2,log/supervisor,run/apache2,ssl/certs,ssl/private}' && \
@@ -94,7 +89,6 @@ RUN cd /data/crits/ && \
   touch /data/crits/logs/crits.log && \
   touch /data/log/startup.log && \
   ln -f -s /data/crits/logs/crits.log /data/log/crits.log && \
-  chgrp -R nonroot logs && \
   chmod 664 /data/crits/logs/crits.log && \
   sed -i 's/^nonroot.*$/&www\-data/' /etc/group && \
   cp crits/config/database_example.py crits/config/database.py && \
@@ -112,7 +106,6 @@ RUN /etc/init.d/apache2 stop && \
   rm /etc/apache2/sites-enabled/* && \
   ln -f -s /etc/apache2/sites-available/default-ssl /etc/apache2/sites-enabled/default-ssl && \
   mkdir -pv /etc/apache2/conf.d/i && \
-  usermod -a -G nonroot www-data
 
 # Setup self-signed cert and perform initial setup
 RUN cd /tmp && \
@@ -140,15 +133,11 @@ RUN cd /tmp && \
   sed -i 's/\$CWD/\/data\/log\//' /etc/supervisor/supervisord.conf && \
   sed -i 's/\$CWD/\/data\/log\//' /etc/supervisor/conf.d/supervisord.conf
 
-RUN ldconfig && \
-  rm -rf /tmp/*
-  #rm -rf /var/lib/apt/lists/*
-
 #Crits Services download
 
 RUN cd /data && git clone https://github.com/crits/crits_services.git
 
-RUN apt-get install -y libtool autoconf
+RUN apt-get install -y
 
 RUN curl -O https://codeload.github.com/plusvic/yara/tar.gz/v3.3.0 -s && \
   tar -xvf v3.3.0 && \
@@ -221,6 +210,11 @@ RUN sed -i "s/from stix\.utils import set_id_namespace/from mixbox\.idgen import
   cd /data && \
   git clone https://github.com/Yara-Rules/rules.git && \
   chmod +x /data/startup.sh
+
+
+RUN ldconfig && \
+  rm -rf /tmp/*
+  rm -rf /var/lib/apt/lists/*
 
 USER root
 ENV HOME /home/root
