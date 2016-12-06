@@ -137,8 +137,6 @@ RUN cd /tmp && \
 
 RUN cd /data && git clone https://github.com/crits/crits_services.git
 
-RUN apt-get install -y
-
 RUN curl -O https://codeload.github.com/plusvic/yara/tar.gz/v3.3.0 -s && \
   tar -xvf v3.3.0 && \
   cd yara-3.3.0 && \
