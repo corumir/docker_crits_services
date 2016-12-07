@@ -24,7 +24,7 @@ crits_config_collection.update({},{'$addToSet':{'service_dirs':'/data/crits_serv
 
 #Restart the apache2 service
 time.sleep(10)
-subprocess.call("service apache2 stop", shell=True)
+subprocess.call("service apache2 restart", shell=True)
 time.sleep(10)
 
 #exiftool_service
